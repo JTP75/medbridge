@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://medbridge.dev/schema/query.schema.json",
+  "title": "DiscoveryQuery",
+  "description": "STUB \u2014 placeholder shape, to be finalized by Agnel (schema owner) with Yizhen (search query semantics). Sent by the Portal to a hospital node's /api/beacon/query endpoint. All fields optional except query_id \u2014 an empty query means 'match everything'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "query_id"
+  ],
+  "properties": {
+    "query_id": {
+      "type": "string",
+      "description": "Caller-generated id for correlating this query across nodes/responses."
+    },
+    "modality": {
+      "type": "string",
+      "description": "STUB \u2014 filter by imaging modality, e.g. MR."
+    },
+    "body_part": {
+      "type": "string",
+      "description": "STUB \u2014 filter by broad body site, e.g. BRAIN."
+    },
+    "age_band": {
+      "type": "string",
+      "description": "STUB \u2014 filter by bucketed age range."
+    },
+    "condition_category": {
+      "type": "string",
+      "description": "STUB \u2014 filter by normalized condition/ontology bucket."
+    }
+  }
+}

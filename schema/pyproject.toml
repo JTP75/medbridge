@@ -1,0 +1,22 @@
+[project]
+name = "medbridge-schema"
+version = "0.1.0"
+description = "Shared MedBridge JSON Schema, generated Pydantic models, and a jsonschema-backed validation helper. Consumed by hospital-node and portal/backend as a path dependency."
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2,<3",
+    "jsonschema>=4,<5",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "gen/python" }
+
+[tool.setuptools.packages.find]
+where = ["gen/python"]
+
+[tool.setuptools.package-data]
+medbridge_schema = ["schemas/*.json"]

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://medbridge.dev/schema/imaging_record.schema.json",
+  "title": "ImagingRecord",
+  "description": "STUB \u2014 placeholder shape, to be finalized by Agnel (schema owner). The 'safe shape' a hospital node is allowed to derive from a raw study record. Fields here are illustrative only; do not treat as final. additionalProperties is false on purpose: any field not explicitly listed must be rejected before a record is used by search/response logic.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "node_id",
+    "modality",
+    "body_part",
+    "age_band",
+    "sex",
+    "acquisition_year",
+    "condition_category"
+  ],
+  "properties": {
+    "node_id": {
+      "type": "string",
+      "description": "STUB \u2014 identifier of the hospital node this record belongs to (e.g. BCH, MGH, BWH)."
+    },
+    "modality": {
+      "type": "string",
+      "description": "STUB \u2014 imaging modality, e.g. MR, CT."
+    },
+    "body_part": {
+      "type": "string",
+      "description": "STUB \u2014 broad body site, e.g. BRAIN."
+    },
+    "age_band": {
+      "type": "string",
+      "description": "STUB \u2014 bucketed age range, e.g. '6-12'. Never an exact birthdate or exact age."
+    },
+    "sex": {
+      "type": "string",
+      "description": "STUB \u2014 broad sex category, placeholder enum to be defined by Agnel/Jaewon."
+    },
+    "acquisition_year": {
+      "type": "integer",
+      "description": "STUB \u2014 year only, never an exact acquisition date."
+    },
+    "condition_category": {
+      "type": "string",
+      "description": "STUB \u2014 normalized condition/ontology bucket (e.g. 'neoplasm', 'ischemia'), not free-text diagnosis. Owner: Jaewon (semantic mapping)."
+    }
+  }
+}

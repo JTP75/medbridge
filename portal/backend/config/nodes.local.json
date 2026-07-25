@@ -1,0 +1,7 @@
+{
+  "nodes": [
+    { "node_id": "BCH", "base_url": "http://localhost:8001" },
+    { "node_id": "MGH", "base_url": "http://localhost:8002" },
+    { "node_id": "BWH", "base_url": "http://localhost:8003" }
+  ]
+}

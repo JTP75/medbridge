@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://medbridge.dev/schema/access_request.schema.json",
+  "title": "AccessRequest",
+  "description": "STUB \u2014 placeholder shape, to be finalized by Agnel (schema owner) with Yizhen (tier/access policy) and Justin (contract boundary). Sent by the Portal to a hospital node's /api/access/requests endpoint, and returned by the node's request-status/list endpoints. Both requester tiers are limited to 'deidentified' data \u2014 see architecture.md 'Requester Model'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "requester_name",
+    "organization_name",
+    "requester_tier",
+    "contact_email",
+    "research_purpose",
+    "query_summary",
+    "requested_node_id",
+    "requested_data_level"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "description": "Assigned by the node on creation; absent on the initial POST body."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_hospital_review",
+        "more_information_requested",
+        "approved",
+        "rejected",
+        "revoked",
+        "expired"
+      ],
+      "description": "STUB \u2014 lifecycle state per architecture.md's decentralized access-request state diagram. Assigned/owned by the node; absent on the initial POST body."
+    },
+    "requester_name": {
+      "type": "string",
+      "description": "Self-declared requester name or demo user identifier."
+    },
+    "organization_name": {
+      "type": "string",
+      "description": "Self-declared organization name, always shown to the hospital reviewer."
+    },
+    "requester_tier": {
+      "type": "string",
+      "enum": [
+        "edu_research",
+        "business_commercial"
+      ],
+      "description": "One of the two demo tiers. Both are limited to requested_data_level='deidentified'."
+    },
+    "contact_email": {
+      "type": "string",
+      "description": "Requester contact email."
+    },
+    "research_purpose": {
+      "type": "string",
+      "description": "Free-text purpose statement, self-declared."
+    },
+    "query_summary": {
+      "type": "string",
+      "description": "Human-readable summary of the discovery query that led to this request."
+    },
+    "requested_node_id": {
+      "type": "string",
+      "description": "The specific hospital node this request is addressed to."
+    },
+    "requested_data_level": {
+      "type": "string",
+      "enum": [
+        "deidentified"
+      ],
+      "description": "STUB \u2014 fixed to 'deidentified' for the demo; no tier may request more than this."
+    },
+    "decision_note": {
+      "type": "string",
+      "description": "STUB \u2014 optional reviewer note attached on approve/deny/more-information."
+    }
+  }
+}

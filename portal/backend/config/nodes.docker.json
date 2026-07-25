@@ -1,0 +1,7 @@
+{
+  "nodes": [
+    { "node_id": "BCH", "base_url": "http://node-bch:8000" },
+    { "node_id": "MGH", "base_url": "http://node-mgh:8000" },
+    { "node_id": "BWH", "base_url": "http://node-bwh:8000" }
+  ]
+}

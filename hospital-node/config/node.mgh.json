@@ -1,0 +1,10 @@
+{
+  "node_id": "MGH",
+  "small_cohort_threshold": 10,
+  "maximum_data_level": "deidentified",
+  "access_contact": {
+    "department": "Research Data Access Office",
+    "email": "synthetic-mgh@example.org",
+    "phone": "555-0102"
+  }
+}

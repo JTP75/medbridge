@@ -1,0 +1,51 @@
+services:
+  node-bch:
+    build:
+      context: .
+      dockerfile: hospital-node/Dockerfile
+    environment:
+      HOSPITAL_NODE_CONFIG: /app/hospital-node/config/node.bch.json
+    ports:
+      - "8001:8000"
+
+  node-mgh:
+    build:
+      context: .
+      dockerfile: hospital-node/Dockerfile
+    environment:
+      HOSPITAL_NODE_CONFIG: /app/hospital-node/config/node.mgh.json
+    ports:
+      - "8002:8000"
+
+  node-bwh:
+    build:
+      context: .
+      dockerfile: hospital-node/Dockerfile
+    environment:
+      HOSPITAL_NODE_CONFIG: /app/hospital-node/config/node.bwh.json
+    ports:
+      - "8003:8000"
+
+  portal-api:
+    build:
+      context: .
+      dockerfile: portal/backend/Dockerfile
+    environment:
+      PORTAL_NODES_CONFIG: /app/portal/backend/config/nodes.docker.json
+    ports:
+      - "8000:8000"
+    depends_on:
+      - node-bch
+      - node-mgh
+      - node-bwh
+
+  portal-web:
+    build:
+      context: .
+      dockerfile: portal/frontend/Dockerfile
+    environment:
+      NEXT_PUBLIC_PORTAL_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - portal-api

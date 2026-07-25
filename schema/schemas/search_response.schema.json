@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://medbridge.dev/schema/search_response.schema.json",
+  "title": "SearchResponse",
+  "description": "STUB \u2014 placeholder shape, to be finalized by Agnel (schema owner) with Yizhen (access/privacy policy). Returned by a hospital node's /api/beacon/query endpoint. Matches the example in architecture.md's 'Two Schema Layers > Search/metadata layer' section. A suppressed match must never carry a raw count.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "query_id",
+    "node_id",
+    "match",
+    "available_data",
+    "access_request_supported"
+  ],
+  "properties": {
+    "query_id": {
+      "type": "string",
+      "description": "Echoes the DiscoveryQuery.query_id this response answers."
+    },
+    "node_id": {
+      "type": "string",
+      "description": "Identifier of the responding hospital node."
+    },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exists",
+        "count",
+        "display_count",
+        "suppressed"
+      ],
+      "properties": {
+        "exists": {
+          "type": "boolean",
+          "description": "Whether any records matched, without revealing a count."
+        },
+        "count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Exact count, or null when suppressed. STUB \u2014 policy owner Yizhen decides when this may be non-null (see architecture.md small-cohort threshold)."
+        },
+        "display_count": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Human-readable count string safe to render, e.g. '<10' or '47'."
+        },
+        "suppressed": {
+          "type": "boolean",
+          "description": "True if count was withheld due to small-cohort policy."
+        },
+        "suppression_reason": {
+          "type": "string",
+          "description": "STUB \u2014 optional reason code, e.g. 'small_cohort'."
+        }
+      }
+    },
+    "available_data": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "STUB \u2014 data types available if access is later approved, e.g. ['deidentified-dicom']."
+    },
+    "access_request_supported": {
+      "type": "boolean",
+      "description": "Whether this node currently accepts access requests."
+    }
+  }
+}
