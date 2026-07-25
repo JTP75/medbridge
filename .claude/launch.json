@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portal-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "portal/frontend", "run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "pages-static-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4173",
+        "--directory",
+        "C:/Users/salve/AppData/Local/Temp/claude/C--Users-salve-Downloads-Redhat-Hackathon-medbridge/d2eb25fb-14cf-4701-90ad-6e0597c4e3cd/scratchpad/pages-preview"
+      ],
+      "port": 4173
+    }
+  ]
+}
