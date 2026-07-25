@@ -1,7 +1,7 @@
 # MedBridge — Hackathon Plan
 
 **Event:** TOA Health Hack — DICOM Search (Red Hat)
-**Duration:** 3.5 hours · **Team:** 5
+**Team:** 5 · **Demo deadline:** 3:00pm (198 min remaining as of 11:42am)
 
 ## Goal
 
@@ -44,19 +44,20 @@ Design inspiration: GA4GH Beacon's split of **Framework** (transport/tiers) vs
 - **Component B (Portal):** Kelsey (lead), Yizhen, Justin (integration)
 - Justin floats across both as the integration owner.
 
-## Timeline (210 min)
+## Timeline (198 min · clock times, ends 3:00pm)
 
 | Time | Duration | Activity |
 |------|----------|----------|
-| 0:00–0:15 | 15m | **All:** kickoff — lock architecture, MVP scope, clone boilerplate, create branches |
-| 0:15–0:45 | 30m | **Justin + Agnel: mentor session on compliant medical data handling** (see below). Meanwhile — Kelsey: portal scaffold; Jaewon: ontology term list; Yizhen: researcher personas + obfuscation rules |
-| 0:45–1:45 | 60m | **Sprint 1:** Agnel drafts JSON Schema; Justin builds node broadcast endpoint + portal↔node contract; Jaewon maps synthetic fields→schema; Kelsey builds search UI + results; Yizhen implements tiers + count obfuscation |
-| 1:45–2:00 | 15m | **Checkpoint #1:** one node emits schema-valid metadata; portal fetches from it |
-| 2:00–2:50 | 50m | **Sprint 2:** multi-node aggregation, semantic search, tiered responses, rare-cohort obfuscation; Kelsey polishes UI + writes demo script |
-| 2:50–3:10 | 20m | **Integration freeze + end-to-end test** of the full lifecycle demo |
-| 3:10–3:30 | 20m | **Demo prep + buffer** — Kelsey leads pitch, rehearse, critical fixes only |
+| 11:42–12:00 | 18m | **All:** kickoff — lock architecture, MVP scope, clone boilerplate, create branches |
+| 12:00–12:25 | 25m | **Justin + Agnel: mentor session on compliant medical data handling** (see below). Meanwhile — Kelsey: portal scaffold; Jaewon: ontology term list; Yizhen: researcher personas + obfuscation rules |
+| 12:25–13:15 | 50m | **Sprint 1:** Agnel drafts JSON Schema; Justin builds node broadcast endpoint + portal↔node contract; Jaewon maps synthetic fields→schema; Kelsey builds search UI + results; Yizhen implements tiers + count obfuscation |
+| 13:15–13:25 | 10m | **Checkpoint #1:** one node emits schema-valid metadata; portal fetches from it |
+| 13:25–14:05 | 40m | **Sprint 2:** multi-node aggregation, semantic search, tiered responses, rare-cohort obfuscation; Kelsey polishes UI + writes demo script |
+| 14:05–14:20 | 15m | **Integration freeze + end-to-end test** of the full lifecycle demo |
+| 14:20–14:45 | 25m | **Demo prep** — Kelsey leads pitch, rehearse, critical fixes only |
+| 14:45–15:00 | 15m | **Buffer** — last-resort fixes only; demo at 3:00pm sharp |
 
-## Mentor Session (Justin + Agnel, 0:15–0:45)
+## Mentor Session (Justin + Agnel, 12:00–12:25)
 
 Held early so answers feed directly into the schema design. Questions to ask:
 - Which DICOM/DB metadata fields are safe to broadcast vs. must be stripped
@@ -85,7 +86,9 @@ Held early so answers feed directly into the schema design. Questions to ask:
 
 ## Risks & Mitigations
 - **Integration lag** → freeze contract at kickoff; Checkpoint #1 forces a
-  working node↔portal link by 2:00.
+  working node↔portal link by 13:25.
 - **Schema scope creep** → keep the model minimal; ontology mapping is stretch.
 - **Compliance uncertainty** → resolved up front in the mentor session.
-- **Demo fragility** → integration freeze at 2:50; only critical fixes after.
+- **Demo fragility** → integration freeze at 14:05; only critical fixes after.
+- **Hard deadline** → demo is due 3:00pm sharp, no slack beyond the 14:45–15:00
+  buffer. If Sprint 2 overruns, cut stretch scope first, never the freeze/test step.
