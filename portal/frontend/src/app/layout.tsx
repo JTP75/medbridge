@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MedBridge Portal",
-  description: "Search medical imaging metadata across hospital nodes.",
+  title: "MedBridge | Federated Imaging Discovery",
+  description:
+    "Privacy-safe medical imaging discovery and hospital-controlled data access.",
 };
 
 export default function RootLayout({
@@ -13,18 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <header className="site-header">
-          <a href="/" className="site-title">
-            MedBridge
-          </a>
-          <nav className="site-nav">
-            <a href="/">Search</a>
-            <a href="/reviewer">Hospital Reviewer</a>
-          </nav>
-        </header>
-        <main className="site-main">{children}</main>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
