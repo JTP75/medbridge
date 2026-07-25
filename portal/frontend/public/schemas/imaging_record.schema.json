@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://medbridge.dev/schema/imaging_record.schema.json",
+  "title": "ImagingRecord",
+  "description": "The 'safe shape' a hospital node derives from a raw study record and holds in memory. additionalProperties is false on purpose: any field not explicitly listed must be rejected before a record is used by search/response logic. This is also the shape released, one row per study, as the de-identified patient data layer after a hospital approves an access request.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "node_id",
+    "modality",
+    "body_part",
+    "age_band",
+    "sex",
+    "acquisition_year",
+    "condition_category"
+  ],
+  "properties": {
+    "node_id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,8}$",
+      "description": "Identifier of the hospital node this record belongs to.",
+      "examples": ["BCH", "MGH", "BWH"]
+    },
+    "modality": {
+      "type": "string",
+      "description": "DICOM imaging modality code.",
+      "enum": ["MR", "CT", "US", "XR", "PT", "NM", "MG", "OT"]
+    },
+    "body_part": {
+      "type": "string",
+      "description": "Controlled body-part / anatomy vocabulary.",
+      "enum": ["BRAIN", "HEART", "FETAL", "CHEST", "ABDOMEN", "SPINE", "OTHER"]
+    },
+    "age_band": {
+      "type": "string",
+      "description": "Bucketed age range. Never an exact birthdate or exact age. The 90+ band satisfies HIPAA Safe Harbor aggregation of ages over 89 (see MENTOR_NOTES.md).",
+      "enum": ["0-1", "2-5", "6-12", "13-21", "22-40", "41-64", "65-89", "90+"]
+    },
+    "sex": {
+      "type": "string",
+      "description": "Administrative sex.",
+      "enum": ["F", "M", "O", "U"]
+    },
+    "acquisition_year": {
+      "type": "integer",
+      "minimum": 2000,
+      "maximum": 2100,
+      "description": "Year only, never an exact acquisition date."
+    },
+    "condition_category": {
+      "type": "string",
+      "description": "Normalized condition/ontology bucket derived from the free-text diagnosis, not free-text itself. Owner: Jaewon (semantic mapping) for the mapping logic; this enum is the shared contract.",
+      "enum": [
+        "neoplasm",
+        "ischemia",
+        "hemorrhage",
+        "congenital_anomaly",
+        "inflammatory",
+        "degenerative",
+        "normal",
+        "other"
+      ]
+    }
+  }
+}

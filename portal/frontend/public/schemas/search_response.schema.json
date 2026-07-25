@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://medbridge.dev/schema/search_response.schema.json",
+  "title": "SearchResponse",
+  "description": "Returned by a hospital node's /api/beacon/query endpoint. Matches architecture.md's 'Two Schema Layers > Search/metadata layer' section. A suppressed match must never carry a raw count.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "query_id",
+    "node_id",
+    "match",
+    "available_data",
+    "access_request_supported"
+  ],
+  "properties": {
+    "query_id": {
+      "type": "string",
+      "description": "Echoes the DiscoveryQuery.query_id this response answers."
+    },
+    "node_id": {
+      "type": "string",
+      "description": "Identifier of the responding hospital node."
+    },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exists", "count", "display_count", "suppressed"],
+      "properties": {
+        "exists": {
+          "type": "boolean",
+          "description": "Whether any records matched, without revealing a count."
+        },
+        "count": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Exact count when at/above this node's small_cohort_threshold; null when suppressed."
+        },
+        "display_count": {
+          "type": ["string", "null"],
+          "description": "Human-readable count string safe to render, e.g. '<10' or '47'. The Portal must render this, not `count`, so suppression cannot be bypassed."
+        },
+        "suppressed": {
+          "type": "boolean",
+          "description": "True if count was withheld due to small-cohort policy."
+        },
+        "suppression_reason": {
+          "type": ["string", "null"],
+          "enum": ["small_cohort", null],
+          "description": "Why the count was suppressed, or null when not suppressed."
+        }
+      }
+    },
+    "available_data": {
+      "type": "array",
+      "description": "Data types available at this node if an access request is later approved.",
+      "items": {
+        "type": "string",
+        "enum": ["deidentified-imaging-metadata"]
+      }
+    },
+    "access_request_supported": {
+      "type": "boolean",
+      "description": "Whether this node currently accepts access requests."
+    }
+  }
+}

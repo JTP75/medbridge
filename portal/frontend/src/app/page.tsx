@@ -466,6 +466,7 @@ function Sidebar({
     { label: "Approved Data", icon: "folder" },
     { label: "My Activity", icon: "activity" },
     { label: "Researcher Profile", icon: "profile", separated: true },
+    { label: "About", icon: "about" },
   ];
   const hospitalNav = [
     { label: "Node Overview", icon: "overview" },
@@ -474,6 +475,7 @@ function Sidebar({
     { label: "Data Policy", icon: "policy" },
     { label: "Audit Trail", icon: "audit" },
     { label: "Organization", icon: "profile", separated: true },
+    { label: "About", icon: "about" },
   ];
   return (
     <aside className="sidebar">
@@ -523,6 +525,7 @@ function NavIcon({ name }: { name: string }) {
     overview: <><rect x="3.5" y="3.5" width="7" height="7" rx="1" /><rect x="13.5" y="3.5" width="7" height="7" rx="1" /><rect x="3.5" y="13.5" width="7" height="7" rx="1" /><rect x="13.5" y="13.5" width="7" height="7" rx="1" /></>,
     policy: <><path d="M12 2.5 20 6v6c0 5-3.2 8-8 9.5C7.2 20 4 17 4 12V6z" /><path d="m8.5 12 2.2 2.2 4.8-5" /></>,
     audit: <><path d="M6 3.5h12v17H6z" /><path d="M9 8h6M9 12h6M9 16h4" /></>,
+    about: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6" /><circle cx="12" cy="7.7" r=".2" fill="currentColor" stroke="currentColor" /></>,
   };
   return <svg className="nav-icon" viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>;
 }
@@ -1127,6 +1130,10 @@ function ResearcherPage({
       "Researcher Profile",
       "Manage your identity, organization, and research access classification.",
     ],
+    About: [
+      "About MedBridge",
+      "Compliance posture and the data contracts behind this network.",
+    ],
   };
   const [title, subtitle] = titleMap[page] ?? [page, ""];
 
@@ -1371,6 +1378,8 @@ function ResearcherPage({
             </aside>
           </div>
         )}
+
+        {page === "About" && <AboutContent />}
       </div>
     </main>
   );
@@ -1449,6 +1458,10 @@ function HospitalPage({
     Organization: [
       "Organization Settings",
       "Hospital identity, research office contact, and node configuration.",
+    ],
+    About: [
+      "About MedBridge",
+      "Compliance posture and the data contracts behind this network.",
     ],
   };
   const [title, subtitle] = titleMap[page] ?? [page, ""];
@@ -1584,8 +1597,90 @@ function HospitalPage({
             </section>
           </div>
         )}
+
+        {page === "About" && <AboutContent />}
       </div>
     </main>
+  );
+}
+
+const SCHEMA_DOCS = [
+  {
+    name: "Imaging Record",
+    file: "imaging_record.schema.json",
+    description:
+      "The de-identified imaging metadata record each hospital node stores locally.",
+  },
+  {
+    name: "Discovery Query",
+    file: "query.schema.json",
+    description:
+      "The structured cohort query the portal sends to every hospital node.",
+  },
+  {
+    name: "Search Response",
+    file: "search_response.schema.json",
+    description:
+      "The privacy-safe aggregated response a node returns for a discovery query.",
+  },
+  {
+    name: "Access Request",
+    file: "access_request.schema.json",
+    description:
+      "The lifecycle object tracking a researcher's request for hospital-approved data access.",
+  },
+];
+
+function AboutContent() {
+  return (
+    <div className="policy-layout">
+      <section className="policy-editor">
+        <p className="eyebrow">Compliance posture · simulated for this prototype</p>
+        <h2>SOC 2 Type II</h2>
+        <PolicyRow label="Trust service criteria" value="Security · Availability · Confidentiality" />
+        <PolicyRow label="Audit period" value="Jan 1 – Dec 31, 2026 (demo)" />
+        <PolicyRow label="Access reviews" value="Quarterly, role-based" />
+        <PolicyRow label="Encryption" value="TLS 1.3 in transit · AES-256 at rest" />
+        <PolicyRow label="Incident response" value="24/7 on-call · 1-hour SLA" />
+        <PolicyRow label="Change management" value="Reviewed deploys · audit-logged" />
+
+        <p className="eyebrow about-section-spacer">HIPAA</p>
+        <h2>Protected health information</h2>
+        <PolicyRow label="PHI at rest" value="Never leaves the originating hospital node" />
+        <PolicyRow label="De-identification" value="Safe Harbor–style category / age-band reduction" />
+        <PolicyRow label="Minimum necessary" value="Discovery returns counts only, never records" />
+        <PolicyRow label="Business associate agreements" value="Simulated BAA per participating hospital" />
+        <PolicyRow label="Breach notification" value="72-hour simulated disclosure window" />
+
+        <p className="policy-note">
+          The SOC 2 and HIPAA details above describe an illustrative target posture for
+          this hackathon prototype — no real audit, certification, or signed BAA exists yet.
+        </p>
+      </section>
+
+      <aside className="boundary-card">
+        <p className="eyebrow">Data contracts</p>
+        <h3>Schema, at a glance</h3>
+        <p>
+          Every request and response on MedBridge is validated against a shared JSON
+          Schema — the same source of truth generates both the Python (Pydantic) and
+          TypeScript types used across the hospital nodes and this portal.
+        </p>
+        <div className="schema-list">
+          {SCHEMA_DOCS.map((schema) => (
+            <div className="schema-item" key={schema.file}>
+              <div>
+                <strong>{schema.name}</strong>
+                <small>{schema.description}</small>
+              </div>
+              <a href={`/schemas/${schema.file}`} target="_blank" rel="noreferrer">
+                View JSON
+              </a>
+            </div>
+          ))}
+        </div>
+      </aside>
+    </div>
   );
 }
 
