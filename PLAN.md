@@ -5,19 +5,38 @@
 
 ## Goal
 
-Two components that together let a researcher search medical imaging metadata
-across multiple hospitals without centralizing patient PII:
+Three pieces that together let a researcher/business search medical imaging
+metadata across multiple hospitals, and let hospitals control access to the
+underlying de-identified data, without centralizing patient PII:
 
-1. **Open Schema + Provider Node** — an open metadata schema plus an adapter
-   that reads common hospital databases (starting from the provided
-   `provider-node` boilerplate + synthetic DICOM data) and broadcasts
-   privacy-safe, schema-compliant metadata.
-2. **Portal** — a search/access front end that queries participating nodes,
-   aggregates results, obfuscates rare cohorts, verifies the researcher, and
-   exposes a secure retrieval pathway.
+1. **Open Schema** — defines two data layers (see below), sitting between the
+   public portal and each hospital's server. This is the contract everything
+   else is built against.
+2. **Provider Node / Hospital Server Portal** — an adapter that reads common
+   hospital databases (starting from the provided `provider-node` boilerplate
+   + synthetic DICOM data), broadcasts schema-compliant search metadata, and
+   gives the hospital a mini-UX to view/approve/deny incoming data access
+   requests (surfacing requester tier + org name).
+3. **Public Portal** — a minimal search UI that queries participating nodes'
+   metadata layer, aggregates results, obfuscates rare cohorts, and lets a
+   requester (specifying their org + tier) request access to the
+   de-identified patient data layer.
 
 Design inspiration: GA4GH Beacon's split of **Framework** (transport/tiers) vs
 **Model** (domain schema). We are effectively defining an "Imaging Beacon" model.
+
+### Schema — two data layers
+1. **Search/metadata layer** — minimal fields that make a hospital and its
+   dataset searchable/identifiable. No sensitive or valuable data lives here.
+2. **De-identified patient data layer** — the actual distributable/purchasable
+   data, gated behind an access request (org name + tier), and held to a
+   stricter de-identification standard (see `MENTOR_NOTES.md`).
+
+### Access model
+- Two tiers: **edu/research** vs **business/commercial**.
+- Authorization is **fully simulated** — no real login/identity provider —
+  but every request must specify an organization name; the hospital reviewer
+  sees tier + org name when approving/denying.
 
 ## Demo Target (end-to-end lifecycle)
 
@@ -25,9 +44,11 @@ Design inspiration: GA4GH Beacon's split of **Framework** (transport/tiers) vs
 2. Portal fans out to 2+ simulated hospital nodes; each returns schema-valid
    metadata counts.
 3. Rare/small cohorts are obfuscated in the response.
-4. Researcher identity is checked → access tier determined.
-5. Portal shows a secure pathway to retrieve permitted metadata from the
-   authorized node(s).
+4. Requester specifies org name + tier (edu researcher vs business) → a
+   simulated access request is sent to the hospital.
+5. Hospital server portal shows the request (org + tier) for approval/denial;
+   on approval, the requester gets a secure pathway to the de-identified
+   patient data layer.
 
 ## Team & Roles
 
@@ -57,32 +78,37 @@ Design inspiration: GA4GH Beacon's split of **Framework** (transport/tiers) vs
 | 14:20–14:45 | 25m | **Demo prep** — Kelsey leads pitch, rehearse, critical fixes only |
 | 14:45–15:00 | 15m | **Buffer** — last-resort fixes only; demo at 3:00pm sharp |
 
-## Mentor Session (Justin + Agnel, 12:00–12:25)
+## Mentor Session (Justin + Agnel, 12:00–12:25) — ANSWERED
 
-Held early so answers feed directly into the schema design. Questions to ask:
-- Which DICOM/DB metadata fields are safe to broadcast vs. must be stripped
-  (HIPAA Safe Harbor / de-identification expectations)?
-- How to handle re-identification risk from small counts — threshold values,
-  suppression, or differential-privacy noise? What count floor is acceptable?
-- What defines the access tiers (anonymous vs. registered vs. IRB-approved)?
-- Any constraints on where metadata physically lives / crosses node boundaries?
-- What must a "secure retrieval pathway" demonstrate to be credible?
+Held early so answers feed directly into the schema design.
+**Full answers in [`MENTOR_NOTES.md`](./MENTOR_NOTES.md).** Summary:
+- Compliance baseline: HIPAA (law) + SOC2 (software controls).
+- Access tiers: just two — edu/research vs. business/commercial — surfaced
+  with org name in the hospital's request-review UX.
+- Auth is fully simulated; org name is required on every request.
+- Biggest real-world adoption blockers: security and cost.
+- Critical constraint: de-identified data (and metadata) must not be
+  reverse-engineerable — watch birthdates, rare conditions, and combinations
+  of fields (quasi-identifiers), in both schema layers.
 
 ## Scope
 
 **MVP (must-have for demo)**
-- Open metadata schema (JSON Schema) + validation
-- ≥2 simulated hospital nodes broadcasting compliant metadata
-- Portal search → aggregated counts across nodes
-- Rare-cohort obfuscation
-- Basic researcher identity → tiered response
-- Secure-retrieval pathway (can be a gated link/stub)
+- Open schema (JSON Schema) for both layers — search metadata + de-identified
+  patient data — with validation
+- ≥2 simulated hospital nodes broadcasting compliant search metadata
+- Public portal search → aggregated counts across nodes
+- Rare-cohort obfuscation (bucketed ages, thresholded rare-condition counts)
+- Simulated access request: requester picks tier (edu/business) + org name
+- Hospital server portal: view incoming requests (tier + org), approve/deny
+- On approval: pathway to the de-identified patient data layer (can be a
+  gated link/stub)
 
 **Stretch (only if ahead)**
 - Natural-language query parsing
 - Richer semantic/ontology term expansion
 - Multi-dimensional aggregations (diagnosis × age × modality)
-- Real auth tokens vs. mocked personas
+- Quasi-identifier auditing across compound filters
 
 ## Risks & Mitigations
 - **Integration lag** → freeze contract at kickoff; Checkpoint #1 forces a
