@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://medbridge.dev/schema/search_response.schema.json",
   "title": "SearchResponse",
-  "description": "STUB \u2014 placeholder shape, to be finalized by Agnel (schema owner) with Yizhen (access/privacy policy). Returned by a hospital node's /api/beacon/query endpoint. Matches the example in architecture.md's 'Two Schema Layers > Search/metadata layer' section. A suppressed match must never carry a raw count.",
+  "description": "Returned by a hospital node's /api/beacon/query endpoint. Matches architecture.md's 'Two Schema Layers > Search/metadata layer' section. A suppressed match must never carry a raw count.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -24,47 +24,39 @@
     "match": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "exists",
-        "count",
-        "display_count",
-        "suppressed"
-      ],
+      "required": ["exists", "count", "display_count", "suppressed"],
       "properties": {
         "exists": {
           "type": "boolean",
           "description": "Whether any records matched, without revealing a count."
         },
         "count": {
-          "type": [
-            "integer",
-            "null"
-          ],
-          "description": "Exact count, or null when suppressed. STUB \u2014 policy owner Yizhen decides when this may be non-null (see architecture.md small-cohort threshold)."
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Exact count when at/above this node's small_cohort_threshold; null when suppressed."
         },
         "display_count": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "Human-readable count string safe to render, e.g. '<10' or '47'."
+          "type": ["string", "null"],
+          "description": "Human-readable count string safe to render, e.g. '<10' or '47'. The Portal must render this, not `count`, so suppression cannot be bypassed."
         },
         "suppressed": {
           "type": "boolean",
           "description": "True if count was withheld due to small-cohort policy."
         },
         "suppression_reason": {
-          "type": "string",
-          "description": "STUB \u2014 optional reason code, e.g. 'small_cohort'."
+          "type": ["string", "null"],
+          "enum": ["small_cohort", null],
+          "description": "Why the count was suppressed, or null when not suppressed."
         }
       }
     },
     "available_data": {
       "type": "array",
+      "description": "Data types available at this node if an access request is later approved.",
       "items": {
-        "type": "string"
-      },
-      "description": "STUB \u2014 data types available if access is later approved, e.g. ['deidentified-dicom']."
+        "type": "string",
+        "enum": ["deidentified-imaging-metadata"]
+      }
     },
     "access_request_supported": {
       "type": "boolean",

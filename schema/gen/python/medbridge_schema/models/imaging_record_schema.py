@@ -3,20 +3,87 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from enum import StrEnum
+
+from pydantic import BaseModel, ConfigDict, Field, conint, constr
+
+
+class Modality(StrEnum):
+    """
+    DICOM imaging modality code.
+    """
+    MR = 'MR'
+    CT = 'CT'
+    US = 'US'
+    XR = 'XR'
+    PT = 'PT'
+    NM = 'NM'
+    MG = 'MG'
+    OT = 'OT'
+
+
+class BodyPart(StrEnum):
+    """
+    Controlled body-part / anatomy vocabulary.
+    """
+    BRAIN = 'BRAIN'
+    HEART = 'HEART'
+    FETAL = 'FETAL'
+    CHEST = 'CHEST'
+    ABDOMEN = 'ABDOMEN'
+    SPINE = 'SPINE'
+    OTHER = 'OTHER'
+
+
+class AgeBand(StrEnum):
+    """
+    Bucketed age range. Never an exact birthdate or exact age. The 90+ band satisfies HIPAA Safe Harbor aggregation of ages over 89 (see MENTOR_NOTES.md).
+    """
+    field_0_1 = '0-1'
+    field_2_5 = '2-5'
+    field_6_12 = '6-12'
+    field_13_21 = '13-21'
+    field_22_40 = '22-40'
+    field_41_64 = '41-64'
+    field_65_89 = '65-89'
+    field_90_ = '90+'
+
+
+class Sex(StrEnum):
+    """
+    Administrative sex.
+    """
+    F = 'F'
+    M = 'M'
+    O = 'O'
+    U = 'U'
+
+
+class ConditionCategory(StrEnum):
+    """
+    Normalized condition/ontology bucket derived from the free-text diagnosis, not free-text itself. Owner: Jaewon (semantic mapping) for the mapping logic; this enum is the shared contract.
+    """
+    neoplasm = 'neoplasm'
+    ischemia = 'ischemia'
+    hemorrhage = 'hemorrhage'
+    congenital_anomaly = 'congenital_anomaly'
+    inflammatory = 'inflammatory'
+    degenerative = 'degenerative'
+    normal = 'normal'
+    other = 'other'
 
 
 class ImagingRecord(BaseModel):
     """
-    STUB — placeholder shape, to be finalized by Agnel (schema owner). The 'safe shape' a hospital node is allowed to derive from a raw study record. Fields here are illustrative only; do not treat as final. additionalProperties is false on purpose: any field not explicitly listed must be rejected before a record is used by search/response logic.
+    The 'safe shape' a hospital node derives from a raw study record and holds in memory. additionalProperties is false on purpose: any field not explicitly listed must be rejected before a record is used by search/response logic. This is also the shape released, one row per study, as the de-identified patient data layer after a hospital approves an access request.
     """
     model_config = ConfigDict(
         extra='forbid',
     )
-    node_id: str = Field(..., description='STUB — identifier of the hospital node this record belongs to (e.g. BCH, MGH, BWH).')
-    modality: str = Field(..., description='STUB — imaging modality, e.g. MR, CT.')
-    body_part: str = Field(..., description='STUB — broad body site, e.g. BRAIN.')
-    age_band: str = Field(..., description="STUB — bucketed age range, e.g. '6-12'. Never an exact birthdate or exact age.")
-    sex: str = Field(..., description='STUB — broad sex category, placeholder enum to be defined by Agnel/Jaewon.')
-    acquisition_year: int = Field(..., description='STUB — year only, never an exact acquisition date.')
-    condition_category: str = Field(..., description="STUB — normalized condition/ontology bucket (e.g. 'neoplasm', 'ischemia'), not free-text diagnosis. Owner: Jaewon (semantic mapping).")
+    node_id: constr(pattern=r'^[A-Z]{2,8}$') = Field(..., description='Identifier of the hospital node this record belongs to.', examples=['BCH', 'MGH', 'BWH'])
+    modality: Modality = Field(..., description='DICOM imaging modality code.')
+    body_part: BodyPart = Field(..., description='Controlled body-part / anatomy vocabulary.')
+    age_band: AgeBand = Field(..., description='Bucketed age range. Never an exact birthdate or exact age. The 90+ band satisfies HIPAA Safe Harbor aggregation of ages over 89 (see MENTOR_NOTES.md).')
+    sex: Sex = Field(..., description='Administrative sex.')
+    acquisition_year: conint(ge=2000, le=2100) = Field(..., description='Year only, never an exact acquisition date.')
+    condition_category: ConditionCategory = Field(..., description='Normalized condition/ontology bucket derived from the free-text diagnosis, not free-text itself. Owner: Jaewon (semantic mapping) for the mapping logic; this enum is the shared contract.')

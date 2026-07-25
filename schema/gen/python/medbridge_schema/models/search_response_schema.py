@@ -3,7 +3,17 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from enum import Enum, StrEnum
+
+from pydantic import BaseModel, ConfigDict, Field, conint
+
+
+class SuppressionReason(Enum):
+    """
+    Why the count was suppressed, or null when not suppressed.
+    """
+    small_cohort = 'small_cohort'
+    NoneType_None = None
 
 
 class Match(BaseModel):
@@ -11,15 +21,19 @@ class Match(BaseModel):
         extra='forbid',
     )
     exists: bool = Field(..., description='Whether any records matched, without revealing a count.')
-    count: int | None = Field(..., description='Exact count, or null when suppressed. STUB — policy owner Yizhen decides when this may be non-null (see architecture.md small-cohort threshold).')
-    display_count: str | None = Field(..., description="Human-readable count string safe to render, e.g. '<10' or '47'.")
+    count: conint(ge=0) | None = Field(..., description="Exact count when at/above this node's small_cohort_threshold; null when suppressed.")
+    display_count: str | None = Field(..., description="Human-readable count string safe to render, e.g. '<10' or '47'. The Portal must render this, not `count`, so suppression cannot be bypassed.")
     suppressed: bool = Field(..., description='True if count was withheld due to small-cohort policy.')
-    suppression_reason: str | None = Field(None, description="STUB — optional reason code, e.g. 'small_cohort'.")
+    suppression_reason: SuppressionReason | None = Field(None, description='Why the count was suppressed, or null when not suppressed.')
+
+
+class AvailableDatum(StrEnum):
+    deidentified_imaging_metadata = 'deidentified-imaging-metadata'
 
 
 class SearchResponse(BaseModel):
     """
-    STUB — placeholder shape, to be finalized by Agnel (schema owner) with Yizhen (access/privacy policy). Returned by a hospital node's /api/beacon/query endpoint. Matches the example in architecture.md's 'Two Schema Layers > Search/metadata layer' section. A suppressed match must never carry a raw count.
+    Returned by a hospital node's /api/beacon/query endpoint. Matches architecture.md's 'Two Schema Layers > Search/metadata layer' section. A suppressed match must never carry a raw count.
     """
     model_config = ConfigDict(
         extra='forbid',
@@ -27,5 +41,5 @@ class SearchResponse(BaseModel):
     query_id: str = Field(..., description='Echoes the DiscoveryQuery.query_id this response answers.')
     node_id: str = Field(..., description='Identifier of the responding hospital node.')
     match: Match
-    available_data: list[str] = Field(..., description="STUB — data types available if access is later approved, e.g. ['deidentified-dicom'].")
+    available_data: list[AvailableDatum] = Field(..., description='Data types available at this node if an access request is later approved.')
     access_request_supported: bool = Field(..., description='Whether this node currently accepts access requests.')

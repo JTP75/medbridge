@@ -3,18 +3,87 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from enum import StrEnum
+
+from pydantic import BaseModel, ConfigDict, Field, conint
+
+
+class Modality(StrEnum):
+    """
+    Filter by imaging modality.
+    """
+    MR = 'MR'
+    CT = 'CT'
+    US = 'US'
+    XR = 'XR'
+    PT = 'PT'
+    NM = 'NM'
+    MG = 'MG'
+    OT = 'OT'
+
+
+class BodyPart(StrEnum):
+    """
+    Filter by broad body site.
+    """
+    BRAIN = 'BRAIN'
+    HEART = 'HEART'
+    FETAL = 'FETAL'
+    CHEST = 'CHEST'
+    ABDOMEN = 'ABDOMEN'
+    SPINE = 'SPINE'
+    OTHER = 'OTHER'
+
+
+class AgeBand(StrEnum):
+    """
+    Filter by bucketed age range.
+    """
+    field_0_1 = '0-1'
+    field_2_5 = '2-5'
+    field_6_12 = '6-12'
+    field_13_21 = '13-21'
+    field_22_40 = '22-40'
+    field_41_64 = '41-64'
+    field_65_89 = '65-89'
+    field_90_ = '90+'
+
+
+class Sex(StrEnum):
+    """
+    Filter by administrative sex.
+    """
+    F = 'F'
+    M = 'M'
+    O = 'O'
+    U = 'U'
+
+
+class ConditionCategory(StrEnum):
+    """
+    Filter by normalized condition/ontology bucket.
+    """
+    neoplasm = 'neoplasm'
+    ischemia = 'ischemia'
+    hemorrhage = 'hemorrhage'
+    congenital_anomaly = 'congenital_anomaly'
+    inflammatory = 'inflammatory'
+    degenerative = 'degenerative'
+    normal = 'normal'
+    other = 'other'
 
 
 class DiscoveryQuery(BaseModel):
     """
-    STUB — placeholder shape, to be finalized by Agnel (schema owner) with Yizhen (search query semantics). Sent by the Portal to a hospital node's /api/beacon/query endpoint. All fields optional except query_id — an empty query means 'match everything'.
+    Sent by the Portal to a hospital node's /api/beacon/query endpoint. All fields optional except query_id — an empty query means 'match everything'. Filter enums mirror imaging_record.schema.json's controlled vocabularies.
     """
     model_config = ConfigDict(
         extra='forbid',
     )
     query_id: str = Field(..., description='Caller-generated id for correlating this query across nodes/responses.')
-    modality: str | None = Field(None, description='STUB — filter by imaging modality, e.g. MR.')
-    body_part: str | None = Field(None, description='STUB — filter by broad body site, e.g. BRAIN.')
-    age_band: str | None = Field(None, description='STUB — filter by bucketed age range.')
-    condition_category: str | None = Field(None, description='STUB — filter by normalized condition/ontology bucket.')
+    modality: Modality | None = Field(None, description='Filter by imaging modality.')
+    body_part: BodyPart | None = Field(None, description='Filter by broad body site.')
+    age_band: AgeBand | None = Field(None, description='Filter by bucketed age range.')
+    sex: Sex | None = Field(None, description='Filter by administrative sex.')
+    acquisition_year: conint(ge=2000, le=2100) | None = Field(None, description='Filter by acquisition year.')
+    condition_category: ConditionCategory | None = Field(None, description='Filter by normalized condition/ontology bucket.')

@@ -10,11 +10,13 @@ Yizhen on access/privacy-policy fields, and Justin on the request/response
 contract boundary. See root [`AGENTS.md`](../AGENTS.md) for the full
 ownership map.
 
-**Current status:** all four schemas below are **stubs** — minimal valid
-placeholders so the generation pipeline and both apps have something to
-build against today. Replace field lists/enums/descriptions as the real
-model is designed; the wiring (this README, `generate.sh`, the package
-structure) does not need to change when you do.
+**Current status:** all four schemas have real field lists/enums/vocab
+(finalized by Agnel against the synthetic `data/*.json` hospital records and
+MENTOR_NOTES.md's de-identification constraints — see each schema's
+`description` fields). `query`/`imaging_record` share one enum vocabulary
+for `modality`/`body_part`/`age_band`/`sex`/`condition_category`; add new
+values to both together if you extend it. The wiring (this README,
+`generate.sh`, the package structure) doesn't need to change if you do.
 
 ## Layout
 

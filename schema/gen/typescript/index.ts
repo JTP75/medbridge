@@ -6,7 +6,7 @@
 
 // ---- access_request ----
 /**
- * STUB — placeholder shape, to be finalized by Agnel (schema owner) with Yizhen (tier/access policy) and Justin (contract boundary). Sent by the Portal to a hospital node's /api/access/requests endpoint, and returned by the node's request-status/list endpoints. Both requester tiers are limited to 'deidentified' data — see architecture.md 'Requester Model'.
+ * Sent by the Portal to a hospital node's /api/access/requests endpoint, and returned by the node's request-status/list endpoints. Both requester tiers are limited to 'deidentified' data — see architecture.md 'Requester Model'.
  */
 export interface AccessRequest {
   /**
@@ -14,7 +14,7 @@ export interface AccessRequest {
    */
   request_id?: string;
   /**
-   * STUB — lifecycle state per architecture.md's decentralized access-request state diagram. Assigned/owned by the node; absent on the initial POST body.
+   * Lifecycle state per architecture.md's decentralized access-request state diagram. Assigned/owned by the node; absent on the initial POST body.
    */
   status?: "pending_hospital_review" | "more_information_requested" | "approved" | "rejected" | "revoked" | "expired";
   /**
@@ -46,53 +46,61 @@ export interface AccessRequest {
    */
   requested_node_id: string;
   /**
-   * STUB — fixed to 'deidentified' for the demo; no tier may request more than this.
+   * Fixed to 'deidentified' for the demo; no tier may request more than this.
    */
   requested_data_level: "deidentified";
   /**
-   * STUB — optional reviewer note attached on approve/deny/more-information.
+   * Optional reviewer note attached on approve/deny/more-information.
    */
   decision_note?: string;
 }
 
 // ---- imaging_record ----
 /**
- * STUB — placeholder shape, to be finalized by Agnel (schema owner). The 'safe shape' a hospital node is allowed to derive from a raw study record. Fields here are illustrative only; do not treat as final. additionalProperties is false on purpose: any field not explicitly listed must be rejected before a record is used by search/response logic.
+ * The 'safe shape' a hospital node derives from a raw study record and holds in memory. additionalProperties is false on purpose: any field not explicitly listed must be rejected before a record is used by search/response logic. This is also the shape released, one row per study, as the de-identified patient data layer after a hospital approves an access request.
  */
 export interface ImagingRecord {
   /**
-   * STUB — identifier of the hospital node this record belongs to (e.g. BCH, MGH, BWH).
+   * Identifier of the hospital node this record belongs to.
    */
   node_id: string;
   /**
-   * STUB — imaging modality, e.g. MR, CT.
+   * DICOM imaging modality code.
    */
-  modality: string;
+  modality: "MR" | "CT" | "US" | "XR" | "PT" | "NM" | "MG" | "OT";
   /**
-   * STUB — broad body site, e.g. BRAIN.
+   * Controlled body-part / anatomy vocabulary.
    */
-  body_part: string;
+  body_part: "BRAIN" | "HEART" | "FETAL" | "CHEST" | "ABDOMEN" | "SPINE" | "OTHER";
   /**
-   * STUB — bucketed age range, e.g. '6-12'. Never an exact birthdate or exact age.
+   * Bucketed age range. Never an exact birthdate or exact age. The 90+ band satisfies HIPAA Safe Harbor aggregation of ages over 89 (see MENTOR_NOTES.md).
    */
-  age_band: string;
+  age_band: "0-1" | "2-5" | "6-12" | "13-21" | "22-40" | "41-64" | "65-89" | "90+";
   /**
-   * STUB — broad sex category, placeholder enum to be defined by Agnel/Jaewon.
+   * Administrative sex.
    */
-  sex: string;
+  sex: "F" | "M" | "O" | "U";
   /**
-   * STUB — year only, never an exact acquisition date.
+   * Year only, never an exact acquisition date.
    */
   acquisition_year: number;
   /**
-   * STUB — normalized condition/ontology bucket (e.g. 'neoplasm', 'ischemia'), not free-text diagnosis. Owner: Jaewon (semantic mapping).
+   * Normalized condition/ontology bucket derived from the free-text diagnosis, not free-text itself. Owner: Jaewon (semantic mapping) for the mapping logic; this enum is the shared contract.
    */
-  condition_category: string;
+  condition_category:
+    | "neoplasm"
+    | "ischemia"
+    | "hemorrhage"
+    | "congenital_anomaly"
+    | "inflammatory"
+    | "degenerative"
+    | "normal"
+    | "other";
 }
 
 // ---- query ----
 /**
- * STUB — placeholder shape, to be finalized by Agnel (schema owner) with Yizhen (search query semantics). Sent by the Portal to a hospital node's /api/beacon/query endpoint. All fields optional except query_id — an empty query means 'match everything'.
+ * Sent by the Portal to a hospital node's /api/beacon/query endpoint. All fields optional except query_id — an empty query means 'match everything'. Filter enums mirror imaging_record.schema.json's controlled vocabularies.
  */
 export interface DiscoveryQuery {
   /**
@@ -100,26 +108,42 @@ export interface DiscoveryQuery {
    */
   query_id: string;
   /**
-   * STUB — filter by imaging modality, e.g. MR.
+   * Filter by imaging modality.
    */
-  modality?: string;
+  modality?: "MR" | "CT" | "US" | "XR" | "PT" | "NM" | "MG" | "OT";
   /**
-   * STUB — filter by broad body site, e.g. BRAIN.
+   * Filter by broad body site.
    */
-  body_part?: string;
+  body_part?: "BRAIN" | "HEART" | "FETAL" | "CHEST" | "ABDOMEN" | "SPINE" | "OTHER";
   /**
-   * STUB — filter by bucketed age range.
+   * Filter by bucketed age range.
    */
-  age_band?: string;
+  age_band?: "0-1" | "2-5" | "6-12" | "13-21" | "22-40" | "41-64" | "65-89" | "90+";
   /**
-   * STUB — filter by normalized condition/ontology bucket.
+   * Filter by administrative sex.
    */
-  condition_category?: string;
+  sex?: "F" | "M" | "O" | "U";
+  /**
+   * Filter by acquisition year.
+   */
+  acquisition_year?: number;
+  /**
+   * Filter by normalized condition/ontology bucket.
+   */
+  condition_category?:
+    | "neoplasm"
+    | "ischemia"
+    | "hemorrhage"
+    | "congenital_anomaly"
+    | "inflammatory"
+    | "degenerative"
+    | "normal"
+    | "other";
 }
 
 // ---- search_response ----
 /**
- * STUB — placeholder shape, to be finalized by Agnel (schema owner) with Yizhen (access/privacy policy). Returned by a hospital node's /api/beacon/query endpoint. Matches the example in architecture.md's 'Two Schema Layers > Search/metadata layer' section. A suppressed match must never carry a raw count.
+ * Returned by a hospital node's /api/beacon/query endpoint. Matches architecture.md's 'Two Schema Layers > Search/metadata layer' section. A suppressed match must never carry a raw count.
  */
 export interface SearchResponse {
   /**
@@ -136,11 +160,11 @@ export interface SearchResponse {
      */
     exists: boolean;
     /**
-     * Exact count, or null when suppressed. STUB — policy owner Yizhen decides when this may be non-null (see architecture.md small-cohort threshold).
+     * Exact count when at/above this node's small_cohort_threshold; null when suppressed.
      */
     count: number | null;
     /**
-     * Human-readable count string safe to render, e.g. '<10' or '47'.
+     * Human-readable count string safe to render, e.g. '<10' or '47'. The Portal must render this, not `count`, so suppression cannot be bypassed.
      */
     display_count: string | null;
     /**
@@ -148,14 +172,14 @@ export interface SearchResponse {
      */
     suppressed: boolean;
     /**
-     * STUB — optional reason code, e.g. 'small_cohort'.
+     * Why the count was suppressed, or null when not suppressed.
      */
-    suppression_reason?: string;
+    suppression_reason?: "small_cohort" | null;
   };
   /**
-   * STUB — data types available if access is later approved, e.g. ['deidentified-dicom'].
+   * Data types available at this node if an access request is later approved.
    */
-  available_data: string[];
+  available_data: "deidentified-imaging-metadata"[];
   /**
    * Whether this node currently accepts access requests.
    */

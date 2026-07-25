@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Shared MedBridge JSON Schema, generated Pydantic models, and a jsonschema-backed validation helper. Consumed by hospital-node and portal/backend as a path dependency."
 requires-python = ">=3.11"
 dependencies = [
-    "pydantic>=2,<3",
+    "pydantic[email]>=2,<3",
     "jsonschema>=4,<5",
 ]
 
