@@ -22,6 +22,7 @@ from pydantic import BaseModel
 
 from medbridge_schema import AccessRequest
 
+from .. import tiers
 from ..config import NodeEndpoint, get_node, get_nodes
 
 router = APIRouter(prefix="/api/portal", tags=["access"])
@@ -59,6 +60,10 @@ def list_nodes() -> list[dict]:
 
 @router.post("/access-requests", response_model=AccessRequest, status_code=201)
 async def create_access_request(payload: AccessRequest) -> AccessRequest:
+    try:
+        payload = tiers.enforce_access_request_policy(payload)
+    except tiers.TierPolicyViolation as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     node = _require_node(payload.requested_node_id)
     async with httpx.AsyncClient() as client:
         resp = await client.post(

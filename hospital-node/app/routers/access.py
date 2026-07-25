@@ -20,7 +20,7 @@ from pydantic import BaseModel
 from medbridge_schema import AccessRequest, AccessRequestStatus
 
 from ..config import NodeConfig, get_node_config
-from ..domain import store
+from ..domain import policy, store
 
 router = APIRouter(prefix="/api/access", tags=["access"])
 
@@ -55,11 +55,15 @@ def create_request(
                 f"match this node ('{config.node_id}')"
             ),
         )
-    if payload.requested_data_level != "deidentified":
+    try:
+        payload = policy.enforce_access_request_policy(
+            payload, config.maximum_data_level
+        )
+    except policy.PolicyViolation as exc:
         raise HTTPException(
             status_code=400,
-            detail="only 'deidentified' access is supported by any tier",
-        )
+            detail=str(exc),
+        ) from exc
     return store.create_access_request(payload)
 
 
@@ -81,9 +85,14 @@ def decide_request(request_id: str, decision: DecisionRequest) -> AccessRequest:
     existing = store.get_access_request(request_id)
     if existing is None:
         raise HTTPException(status_code=404, detail="request not found")
+    target_status = AccessRequestStatus(decision.decision)
+    try:
+        policy.enforce_status_transition(existing.status, target_status)
+    except policy.PolicyViolation as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     updated = store.update_access_request(
         request_id,
-        status=AccessRequestStatus(decision.decision),
+        status=target_status,
         decision_note=decision.decision_note,
     )
     assert updated is not None
@@ -99,9 +108,14 @@ def request_more_information(
     existing = store.get_access_request(request_id)
     if existing is None:
         raise HTTPException(status_code=404, detail="request not found")
+    target_status = AccessRequestStatus.more_information_requested
+    try:
+        policy.enforce_status_transition(existing.status, target_status)
+    except policy.PolicyViolation as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     updated = store.update_access_request(
         request_id,
-        status=AccessRequestStatus.more_information_requested,
+        status=target_status,
         decision_note=info.note,
     )
     assert updated is not None
