@@ -14,6 +14,7 @@ boundary + routing).
 
 from __future__ import annotations
 
+import asyncio
 from typing import Literal, Optional
 
 import httpx
@@ -53,9 +54,43 @@ def _raise_for_node_status(resp: httpx.Response) -> None:
         raise HTTPException(status_code=resp.status_code, detail=resp.text)
 
 
+async def _node_directory_entry(
+    client: httpx.AsyncClient, node: NodeEndpoint
+) -> dict:
+    """Return public node metadata without failing the whole directory."""
+    try:
+        response = await client.get(
+            f"{node.base_url}/api/beacon/info",
+            timeout=_REQUEST_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+        info = response.json()
+        return {
+            "node_id": node.node_id,
+            "base_url": node.base_url,
+            "record_count": info.get("record_count"),
+            "access_request_supported": info.get(
+                "access_request_supported", False
+            ),
+            "status": "online",
+        }
+    except (httpx.HTTPError, ValueError):
+        return {
+            "node_id": node.node_id,
+            "base_url": node.base_url,
+            "record_count": None,
+            "access_request_supported": False,
+            "status": "unavailable",
+        }
+
+
 @router.get("/nodes")
-def list_nodes() -> list[dict]:
-    return [{"node_id": n.node_id, "base_url": n.base_url} for n in get_nodes()]
+async def list_nodes() -> list[dict]:
+    nodes = get_nodes()
+    async with httpx.AsyncClient() as client:
+        return await asyncio.gather(
+            *(_node_directory_entry(client, node) for node in nodes)
+        )
 
 
 @router.post("/access-requests", response_model=AccessRequest, status_code=201)

@@ -66,8 +66,22 @@ def test_reviewer_queue_and_decision_proxy_to_node(client, valid_request):
     assert decide_resp.json()["status"] == "approved"
 
 
+@respx.mock
 def test_list_nodes(client):
+    for port, node_id in [(8001, "BCH"), (8002, "MGH"), (8003, "BWH")]:
+        respx.get(f"http://localhost:{port}/api/beacon/info").mock(
+            return_value=Response(
+                200,
+                json={
+                    "node_id": node_id,
+                    "record_count": 900,
+                    "access_request_supported": True,
+                },
+            )
+        )
     resp = client.get("/api/portal/nodes")
     assert resp.status_code == 200
     node_ids = {n["node_id"] for n in resp.json()}
     assert node_ids == {"BCH", "MGH", "BWH"}
+    assert all(n["record_count"] == 900 for n in resp.json())
+    assert all(n["status"] == "online" for n in resp.json())
