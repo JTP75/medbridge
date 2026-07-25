@@ -59,9 +59,11 @@ DEFAULT_AGE_BANDS: Final[tuple[AgeBand, ...]] = (
     AgeBand("0-1", 0, 2),
     AgeBand("2-5", 2, 6),
     AgeBand("6-12", 6, 13),
-    AgeBand("13-17", 13, 18),
-    AgeBand("18-64", 18, 65),
-    AgeBand("65+", 65, None),
+    AgeBand("13-21", 13, 22),
+    AgeBand("22-40", 22, 41),
+    AgeBand("41-64", 41, 65),
+    AgeBand("65-89", 65, 90),
+    AgeBand("90+", 90, None),
 )
 
 _ALLOWED_STATUS_TRANSITIONS: Final[
